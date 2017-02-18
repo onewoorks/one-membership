@@ -1,9 +1,9 @@
 <?php
 
-$app->get('/setup/[{id}]',function($request,$response,$args){
-   $sql = "SELECT * FROM setup WHERE id=:id"; 
+$app->get('/setup/[{domain}]',function($request,$response,$args){
+   $sql = "SELECT config FROM setup WHERE domain=:domain"; 
    $sth = $this->db->prepare($sql);
-   $sth->bindParam("id",$args['id']);
+   $sth->bindParam(":domain",$args['domain']);
    $sth->execute();
    $setup = $sth->fetchObject();
    return $this->response->withJson($setup);

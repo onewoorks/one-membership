@@ -24,8 +24,28 @@ $app->get('/persons/search/[{query}]', function ($request, $response, $args) {
     return $this->response->withJson($todos);
 });
 
+$app->get('/person/check/[{card_no}]',function($request,$response,$args){
+   $sth = $this->db->prepare("SELECT * FROM person WHERE card_no=:card_no");
+    $sth->bindParam(":card_no", $args['card_no']);
+    $sth->execute();
+    $person = $sth->fetchObject();
+   return $this->response->WithJson($person);
+});
+
 $app->post('/person/new', function($request, $response) {
     $input = $request->getParsedBody();
+    
+    switch($input['validiti']):
+        case 'tahunan':
+            $tarikhLuput = date('Y-m-d h:i:s', strtotime('+1 year'));
+            break;
+        case 'bulanan':
+            $tarikhLuput = date('Y-m-d h:i:s', strtotime('+1 month'));
+            break;
+        default:
+            $tarikhLuput = date('Y-m-d h:i:s', strtotime('+100 year'));
+            break;
+    endswitch;
     
     $domain = $input['domain'];
     $staffName = strtoupper($input['staff_name']);
@@ -37,7 +57,7 @@ $app->post('/person/new', function($request, $response) {
     $referal = $input['referal'];
     $email = $input['email'];
     $tarikhDaftar = date('Y-m-d h:i:s');
-    $mLastDate = date('Y-m-d h:i:s');
+    $mLastDate = $tarikhLuput;
     $point = 0;
     $status = 0;
 
