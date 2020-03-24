@@ -7,12 +7,104 @@ $app->get('/persons', function ($request, $response, $args) {
     return $this->response->withJson($todos);
 });
 
+$app->get('/persons-and-point', function ($request, $response, $args) {
+    $sql = "SELECT p.person_id, pe.full_name, pe.card_no, pe.contact_no, sum(p.jumlah_mata) AS point "
+            . " FROM point_collection p LEFT JOIN person pe ON (pe.person_id=p.person_id) "
+            . " WHERE p.domain IN ('husnu_arba','kemaman') "
+            . " GROUP BY person_id";
+    $sth = $this->db->prepare($sql);
+    $sth->execute();
+    $todos = $sth->fetchAll();
+    return $this->response->withJson($todos);
+});
+
+$app->get('/persons-and-point-domain/[{domain}]', function ($request, $response, $args) {
+    $linkedDomain = getLinkedDomain($args['domain']);
+
+    $sql = "SELECT pe.person_id, pe.full_name, pe.card_no, pe.contact_no,  pe.status AS status_ahli,
+(SELECT COALESCE(SUM(jumlah_mata),0) FROM point_collection WHERE person_id=pe.person_id AND domain IN ($linkedDomain)) 
+ AS point_in,
+ (SELECT COALESCE(SUM(jumlah_guna),0) FROM point_consume WHERE person_id=pe.person_id AND domain IN ($linkedDomain)) AS point_out
+FROM person pe 
+WHERE pe.domain_daftar IN ($linkedDomain) AND pe.status = 0 ";
+    if($args['domain'] == 'sridelima'):
+        $sql .= "AND pe.card_no <> pe.identification_no ";
+        $sql .= "GROUP BY pe.card_no";
+    else :
+        $sql .= "GROUP BY pe.person_id";
+    endif;
+    $sth = $this->db->prepare($sql);
+    $sth->execute();
+    $personPoints = $sth->fetchAll();
+    return $this->response->withJson($personPoints);
+});
+
 $app->get('/person/[{id}]', function ($request, $response, $args) {
     $sth = $this->db->prepare("SELECT * FROM person WHERE person_id=:id");
     $sth->bindParam("id", $args['id']);
     $sth->execute();
     $todos = $sth->fetchObject();
     return $this->response->withJson($todos);
+});
+
+$app->get('/person-and-point/[{id}]', function ($request, $response, $args) {
+    $query = "SELECT 
+p.*,
+(SELECT sum(jumlah_mata) FROM point_collection WHERE person_id = :id) AS collected,
+(SELECT sum(jumlah_guna) FROM point_consume WHERE person_id =:id) as consume
+FROM person p where p.person_id = :id";
+    $sth = $this->db->prepare($query);
+    $sth->bindParam("id", $args['id']);
+    $sth->execute();
+    $todos = $sth->fetchObject();
+    return $this->response->withJson($todos);
+});
+
+$app->get('/person-and-point-2/[{id}]', function ($request, $response, $args) {
+    $sql = "SELECT 
+p.*,
+(SELECT sum(jumlah_mata) FROM point_collection WHERE person_id = :id) AS collected,
+(SELECT sum(jumlah_guna) FROM point_consume WHERE person_id =:id) as consume
+FROM person p where p.person_id = :id";
+
+    $sth = executeQuery2($sql);
+    $sth->bindParam("id", $args['id']);
+    $sth->execute();
+    $todos = $sth->fetchObject();
+    return $this->response->withJson($todos);
+});
+
+$app->get('/person/point-log/[{params:.*}]', function($request, $response, $args) {
+    $params = explode('/', $request->getAttribute('params'));
+    $person_group = getPersonGroup($params[0]);
+    $linkedDomain = getLinkedDomain($params[0]);
+    $sql = "select p.type, p.tarikh, p.person_id, p.perkara, p.mata_ganjaran, p.resit, p.domain FROM (
+            SELECT CONCAT('KUMPUL') as type, tarikh_kumpul AS tarikh, person_id, perkara, jumlah_mata AS mata_ganjaran, no_resit AS resit, domain
+            FROM point_collection 
+            WHERE person_id=:person_id AND domain IN ($linkedDomain) AND DATE(tarikh_kumpul) <= :tarikh 
+            UNION SELECT CONCAT('GUNA') AS type, tarikh_guna AS tarikh, person_id, perkara, jumlah_guna AS mata_ganjaran, CONCAT('') AS resit, domain
+            FROM point_consume WHERE person_id=:person_id AND domain IN($linkedDomain) AND DATE(tarikh_guna) <= :tarikh ) AS p 
+            LEFT JOIN $person_group person ON (p.person_id=person.person_id) ORDER BY p.tarikh DESC";
+    $sth = $this->db->prepare($sql);
+    $sth->bindParam("person_id", $params[1]);
+    $sth->bindParam("tarikh", isset($params[2]) ? $params[2] : date('Y-m-d'));
+    $sth->execute();
+    $pointlog = $sth->fetchAll();
+    return $this->response->withJson($pointlog);
+});
+
+$app->get('/person/point-log-2/[{params:.*}]', function($request, $response, $args) {
+    $params = explode('/', $request->getAttribute('params'));
+    $person_id = $params[1];
+    $tarikh = isset($params[2]) ? $params[2] : date('Y-m-d');
+    $sql = "select p.type, p.tarikh, p.person_id, p.perkara, p.mata_ganjaran, p.resit, p.domain FROM (
+            SELECT CONCAT('KUMPUL') as type, tarikh_kumpul AS tarikh, person_id, perkara, jumlah_mata AS mata_ganjaran, no_resit AS resit, domain
+            FROM point_collection 
+            WHERE person_id=$person_id AND DATE(tarikh_kumpul) <= '$tarikh' 
+            UNION SELECT CONCAT('GUNA') AS type, tarikh_guna AS tarikh, person_id, perkara, jumlah_guna AS mata_ganjaran, CONCAT('') AS resit, domain
+            FROM point_consume WHERE person_id=$person_id AND DATE(tarikh_guna) <= '$tarikh' ) AS p 
+            LEFT JOIN person person ON (p.person_id=person.person_id) ORDER BY p.tarikh DESC";
+    return $this->response->withJson(executeQuery($sql));
 });
 
 $app->get('/persons/search/[{query}]', function ($request, $response, $args) {
@@ -24,29 +116,70 @@ $app->get('/persons/search/[{query}]', function ($request, $response, $args) {
     return $this->response->withJson($todos);
 });
 
-$app->get('/person/check/[{card_no}]',function($request,$response,$args){
-   $sth = $this->db->prepare("SELECT * FROM person WHERE card_no=:card_no");
+$app->get('/person/domain/{params:.*}', function ($request, $response, $args) {
+    $params = explode('/', $request->getAttribute('params'));
+    $linkedDomain = getLinkedDomain($params['0']);
+    $sth = $this->db->prepare("SELECT * FROM person WHERE domain_daftar IN ($linkedDomain) AND identification_no = :identification_no");
+    $sth->bindParam(":identification_no", $params[1]);
+    $sth->execute();
+    $person = $sth->fetchObject();
+    return $this->response->withJson($person);
+});
+
+$app->get('/person/check/[{card_no}]', function($request, $response, $args) {
+    $query = "SELECT 
+            p.*,
+            (SELECT sum(jumlah_mata) FROM point_collection WHERE person_id = p.person_id) AS collected,
+            (SELECT sum(jumlah_guna) FROM point_consume WHERE person_id = p.person_id) as consume
+            FROM person p where p.card_no = :card_no ";
+
+    $sth = $this->db->prepare($query);
     $sth->bindParam(":card_no", $args['card_no']);
     $sth->execute();
     $person = $sth->fetchObject();
-   return $this->response->WithJson($person);
+    
+    if($person->domain_daftar != ''){
+        $person->jenis_pelanggan = ($person->domain_daftar == 'sridelima' && $person->card_no == $person->identification_no) ? 'Pelanggan Biasa' : 'Pelanggan Membership';
+    }
+    
+    return $this->response->WithJson($person);
+});
+
+$app->get('/person/check-2/[{params:.*}]',function($request, $response, $args) {
+     $params = explode('/', $request->getAttribute('params'));
+     $linkedDomain = getLinkedDomain($params[0]);
+     $query = "SELECT 
+            p.*,
+            (SELECT sum(jumlah_mata) FROM point_collection WHERE person_id = p.person_id) AS collected,
+            (SELECT sum(jumlah_guna) FROM point_consume WHERE person_id = p.person_id) as consume
+            FROM person p where p.card_no = :card_no AND domain_daftar IN ($linkedDomain)";
+
+    $sth = $this->db->prepare($query);
+    $sth->bindParam(":card_no", $params[1]);
+    $sth->execute();
+    $person = $sth->fetchObject();
+    
+    if($person->domain_daftar != ''){
+        $person->jenis_pelanggan = ($person->domain_daftar == 'sridelima' && $person->card_no == $person->identification_no) ? 'Pelanggan Biasa' : 'Pelanggan Membership';
+    } 
+    return $this->response->WithJson($person);
 });
 
 $app->post('/person/new', function($request, $response) {
     $input = $request->getParsedBody();
-    
-    switch($input['validiti']):
+
+    switch ($input['validiti']):
         case 'tahunan':
-            $tarikhLuput = date('Y-m-d h:i:s', strtotime('+1 year'));
+            $tarikhLuput = date('Y-m-d H:i:s', strtotime('+1 year'));
             break;
         case 'bulanan':
-            $tarikhLuput = date('Y-m-d h:i:s', strtotime('+1 month'));
+            $tarikhLuput = date('Y-m-d H:i:s', strtotime('+1 month'));
             break;
         default:
-            $tarikhLuput = date('Y-m-d h:i:s', strtotime('+100 year'));
+            $tarikhLuput = date('Y-m-d H:i:s', strtotime('+50 year'));
             break;
     endswitch;
-    
+
     $domain = $input['domain'];
     $staffName = strtoupper($input['staff_name']);
     $noKad = $input['no_kad'];
@@ -56,29 +189,49 @@ $app->post('/person/new', function($request, $response) {
     $alamat = $input['alamat'];
     $referal = $input['referal'];
     $email = $input['email'];
-    $tarikhDaftar = date('Y-m-d h:i:s');
+    $tarikhDaftar = date('Y-m-d H:i:s');
     $mLastDate = $tarikhLuput;
     $point = 0;
     $status = 0;
 
-    $sql = "INSERT INTO person (person_id,card_no,full_name,identification_no,alamat,contact_no,tarikh_daftar,m_lastdate, point, diurus_oleh,status,domain_daftar,referal,email) "
-            . " VALUES (null,:card_no,:full_name,:identification_no,:alamat,:contact_no,:tarikh_daftar,:m_lastdate, :point, :diurus_oleh,:status,:domain_daftar,:referal,:email)";
+    $sql = "INSERT INTO person "
+            . "(person_id,card_no,full_name,identification_no,alamat,contact_no,tarikh_daftar,m_lastdate, point, diurus_oleh,status,domain_daftar,referal,email) "
+            . " VALUES "
+            . "(null,:card_no,:full_name,:identification_no,:alamat,:contact_no,:tarikh_daftar,:m_lastdate, :point, :diurus_oleh,:status,:domain_daftar,:referal,:email)";
 
     $sth = $this->db->prepare($sql);
-    
+
     $sth->bindParam(':card_no', $noKad);
     $sth->bindParam(':full_name', $namaAhli);
-    $sth->bindParam(':identification_no', $identificationNo );
+    $sth->bindParam(':identification_no', $identificationNo);
     $sth->bindParam(':alamat', $alamat);
-    $sth->bindParam(':contact_no', $contactNo );
+    $sth->bindParam(':contact_no', $contactNo);
     $sth->bindParam(':tarikh_daftar', $tarikhDaftar);
     $sth->bindParam(':m_lastdate', $mLastDate);
-    $sth->bindParam(':point', $point );
-    $sth->bindParam(':diurus_oleh', $staffName );
+    $sth->bindParam(':point', $point);
+    $sth->bindParam(':diurus_oleh', $staffName);
     $sth->bindParam(':status', $status);
-    $sth->bindParam(':domain_daftar', $domain );
+    $sth->bindParam(':domain_daftar', $domain);
     $sth->bindParam(':referal', $referal);
     $sth->bindParam(':email', $email);
     $sth->execute();
-    return $this->response->withJson($input);
+});
+
+
+$app->put('/person/deactive', function($request, $response, $args) {
+    $input = $request->getParsedBody();
+    $sql = "UPDATE person SET status=1 WHERE person_id = :person_id AND domain_daftar = :domain";
+    $sth = $this->db->prepare($sql);
+    $sth->bindParam(':person_id', $input['person_id']);
+    $sth->bindParam(':domain', $input['domain']);
+    $sth->execute();
+});
+
+$app->get('/person/search/[{filter}]', function($request, $response, $args){
+    $sql = "SELECT * FROM person where `card_no` like :filter or `identification_no` like :filter or contact_no like :filter GROUP BY identification_no";
+    $sth = executeQuery2($sql);
+    $sth->bindValue(':filter', '%'.$args['filter'].'%');
+    $sth->execute();
+    $found = $sth->fetchAll(PDO::FETCH_ASSOC);
+    return $this->response->withJson($found);
 });

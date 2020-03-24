@@ -1,4 +1,5 @@
 <?php
+
 return [
     'settings' => [
         'displayErrorDetails' => true, // set to false in production
@@ -16,11 +17,18 @@ return [
             'level' => \Monolog\Logger::DEBUG,
         ],
         // Database connection settings
-        "db" => [
-            "host" => "127.0.0.1",
-            "dbname" => "membership",
-            "user" => "root",
-            "pass" => ""
-        ],
+    //    "db" => [
+    //        "host" => "127.0.0.1",
+    //        "dbname" => "membership",
+    //        "user" => "root",
+    //        "pass" => "re^mp123"
+    //    ],
+
+        // "db" => [
+        //     "host" => "127.0.0.1",
+        //     "dbname" => "membership",
+        //     "user" => "root",
+        //     "pass" => ""
+        // ],
     ],
 ];
