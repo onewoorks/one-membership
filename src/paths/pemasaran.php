@@ -11,18 +11,13 @@ $app->get('/pemasaran/sms/template-list/[{type}]', function($request, $response,
 });
 
 $app->post('/pemasaran/jualan', function($request, $response, $args){
-    $body = array(
-        'nama' => 'Irwan Ibrahim',
-        'jumlah_pembelian' => 'RM 6,421.00',
-        'mobile_no' => '0196693481',
-        'sender' => 'SPE_ARIFFIN'
-    );
+    $payloads = $request->getParsedBody();
     $query = "SELECT * FROM sms_template WHERE type='jualan' AND code='automate' AND status=1";
     $sth = executeQuery2($query);
     $sth->execute();
     $automate_jualan = $sth->fetchAll(PDO::FETCH_ASSOC);
     foreach($automate_jualan as $a):
-        SmsGateway::SendSms($a, $body);
+        SmsGateway::SendSms($a, $payloads);
     endforeach;
     $message = "Sms integration has been executed!";
     return $this->response->withJson($message);

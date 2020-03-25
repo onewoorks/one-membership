@@ -3,7 +3,7 @@
 include_once 'functions/product_functions.php';
 
 $app->get('/products', function ($request, $response, $args) {
-    $sth = $this->db->prepare("SELECT * FROM person ORDER BY person_id");
+    $sth = executeQuery2("SELECT * FROM person ORDER BY person_id");
     $sth->execute();
     $persons = $sth->fetchAll();
 
@@ -52,7 +52,7 @@ $app->post('/product/add', function($request, $response, $args) {
                 . "'" . (int) $productInfo['user_id'] . "',"
                 . "'" . (float) $productInfo['ring_size'] . "'"
                 . ")";
-        $sth = $this->db->prepare($sql);
+        $sth = executeQuery2($sql);
         $sth->execute();
         $productId = $this->db->lastInsertId();
         InsertProductDescription($productId, $productInfo);

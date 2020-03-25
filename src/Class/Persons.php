@@ -20,7 +20,7 @@ class Persons {
         $sql = "INSERT INTO person (person_id,card_no,full_name,identification_no,alamat,contact_no,tarikh_daftar,m_lastdate, point, diurus_oleh,status,domain_daftar,referal,email) "
                 . " VALUES (null,:card_no,:full_name,:identification_no,:alamat,:contact_no,:tarikh_daftar,:m_lastdate, :point, :diurus_oleh,:status,:domain_daftar,:referal,:email)";
 
-        $sth = $this->db->prepare($sql);
+        $sth = executeQuery2($sql);
 
         $sth->bindParam(':card_no', $noKad);
         $sth->bindParam(':full_name', $namaAhli);

@@ -21,7 +21,7 @@ $app->post('/hadiah/add', function($request, $response, $args) {
     print_r($input);
     $sql = "INSERT INTO `ganjaran` (`nama_ganjaran`, `mata`, `kuantiti`, `user`, `tarikh_daftar`, `image`, `jenis_hadiah`, `domain`) VALUES (:nama_ganjaran,:mata,:kuantiti,:user,:tarikh_daftar,:image, :jenis_hadiah, :domain)";
     
-    $sth = $this->db->prepare($sql);
+    $sth = executeQuery2($sql);
     $sth->bindParam(':nama_ganjaran',$input['nama_ganjaran']);
     $sth->bindParam(':mata',$input['mata']);
     $sth->bindParam(':kuantiti',$input['kuantiti']);
@@ -39,7 +39,7 @@ $app->post('/hadiah/ubah', function($request, $response, $args){
     $linked_domain = getLinkedDomain($input['domain']);
     $sql = "UPDATE ganjaran SET nama_ganjaran=:nama_ganjaran, mata=:mata, kuantiti=:kuantiti, tarikh_daftar=:tarikh_daftar, image=:image, domain=:domain, user=:user "
             . " WHERE domain IN ($linked_domain) AND id=:id";
-    $sth = $this->db->prepare($sql);
+    $sth = executeQuery2($sql);
     $sth->bindParam(':nama_ganjaran',$input['nama_ganjaran']);
     $sth->bindParam(':mata',$input['mata']);
     $sth->bindParam(':kuantiti',$input['kuantiti']);

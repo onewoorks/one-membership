@@ -26,7 +26,7 @@ $app->get('/persons-and-point', function ($request, $response, $args) {
         . " FROM point_collection p LEFT JOIN person pe ON (pe.person_id=p.person_id) "
         . " WHERE p.domain IN ('husnu_arba','kemaman') "
         . " GROUP BY person_id";
-    $sth = $this->db->prepare($sql);
+    $sth = executeQuery2($sql);
     $sth->execute();
     $todos = $sth->fetchAll();
     return $this->response->withJson($todos);
@@ -47,14 +47,14 @@ WHERE pe.domain_daftar IN ($linkedDomain) AND pe.status = 0 ";
     else:
         $sql .= "GROUP BY pe.person_id";
     endif;
-    $sth = $this->db->prepare($sql);
+    $sth = executeQuery2($sql);
     $sth->execute();
     $personPoints = $sth->fetchAll();
     return $this->response->withJson($personPoints);
 });
 
 $app->get('/person/[{id}]', function ($request, $response, $args) {
-    $sth = $this->db->prepare("SELECT * FROM person WHERE person_id=:id");
+    $sth = executeQuery2("SELECT * FROM person WHERE person_id=:id");
     $sth->bindParam("id", $args['id']);
     $sth->execute();
     $todos = $sth->fetchObject();
@@ -67,7 +67,7 @@ p.*,
 (SELECT sum(jumlah_mata) FROM point_collection WHERE person_id = :id) AS collected,
 (SELECT sum(jumlah_guna) FROM point_consume WHERE person_id =:id) as consume
 FROM person p where p.person_id = :id";
-    $sth = $this->db->prepare($query);
+    $sth = executeQuery2($query);
     $sth->bindParam("id", $args['id']);
     $sth->execute();
     $todos = $sth->fetchObject();
@@ -99,7 +99,7 @@ $app->get('/person/point-log/[{params:.*}]', function ($request, $response, $arg
             UNION SELECT CONCAT('GUNA') AS type, tarikh_guna AS tarikh, person_id, perkara, jumlah_guna AS mata_ganjaran, CONCAT('') AS resit, domain
             FROM point_consume WHERE person_id=:person_id AND domain IN($linkedDomain) AND DATE(tarikh_guna) <= :tarikh ) AS p
             LEFT JOIN $person_group person ON (p.person_id=person.person_id) ORDER BY p.tarikh DESC";
-    $sth = $this->db->prepare($sql);
+    $sth = executeQuery2($sql);
     $sth->bindParam("person_id", $params[1]);
     $sth->bindParam("tarikh", isset($params[2]) ? $params[2] : date('Y-m-d'));
     $sth->execute();
@@ -109,8 +109,8 @@ $app->get('/person/point-log/[{params:.*}]', function ($request, $response, $arg
 
 $app->get('/person/point-log-2/[{params:.*}]', function ($request, $response, $args) {
     $params = explode('/', $request->getAttribute('params'));
-    $person_id = $params[1];
-    $tarikh = isset($params[2]) ? $params[2] : date('Y-m-d');
+    $person_id = $params[0];
+    $tarikh = isset($params[1]) ? $params[1] : date('Y-m-d');
     $sql = "select p.type, p.tarikh, p.person_id, p.perkara, p.mata_ganjaran, p.resit, p.domain FROM (
             SELECT CONCAT('KUMPUL') as type, tarikh_kumpul AS tarikh, person_id, perkara, jumlah_mata AS mata_ganjaran, no_resit AS resit, domain
             FROM point_collection
@@ -118,11 +118,15 @@ $app->get('/person/point-log-2/[{params:.*}]', function ($request, $response, $a
             UNION SELECT CONCAT('GUNA') AS type, tarikh_guna AS tarikh, person_id, perkara, jumlah_guna AS mata_ganjaran, CONCAT('') AS resit, domain
             FROM point_consume WHERE person_id=$person_id AND DATE(tarikh_guna) <= '$tarikh' ) AS p
             LEFT JOIN person person ON (p.person_id=person.person_id) ORDER BY p.tarikh DESC";
-    return $this->response->withJson(executeQuery($sql));
+    $sth = executeQuery2($sql);
+    $sth->bindParam(':person_id', $person_id);
+    $sth->execute();
+    $result = $sth->fetchAll(PDO::FETCH_ASSOC);
+    return $this->response->withJson($result);
 });
 
 $app->get('/persons/search/[{query}]', function ($request, $response, $args) {
-    $sth = $this->db->prepare("SELECT * FROM person WHERE full_name LIKE :query ORDER BY person_id");
+    $sth = executeQuery2("SELECT * FROM person WHERE full_name LIKE :query ORDER BY person_id");
     $query = "%" . $args['query'] . "%";
     $sth->bindParam("query", $query);
     $sth->execute();
@@ -130,11 +134,13 @@ $app->get('/persons/search/[{query}]', function ($request, $response, $args) {
     return $this->response->withJson($todos);
 });
 
-$app->get('/person/domain/{params:.*}', function ($request, $response, $args) {
-    $params = explode('/', $request->getAttribute('params'));
-    $linkedDomain = getLinkedDomain($params['0']);
-    $sth = $this->db->prepare("SELECT * FROM person WHERE domain_daftar IN ($linkedDomain) AND identification_no = :identification_no");
-    $sth->bindParam(":identification_no", $params[1]);
+$app->get('/person/domain/[{identification_id}]', function ($request, $response, $args) {
+    $query = "SELECT p.*, "
+    . "(SELECT COALESCE(sum(jumlah_mata),0) FROM point_collection WHERE person_id=p.person_id) as total_point, "
+    . "(SELECT COALESCE(sum(jumlah_guna),0) FROM point_consume WHERE person_id=p.person_id) as total_consume "
+    . "FROM person p WHERE  p.person_id = (SELECT person_id FROM person WHERE  identification_no = :identification_no) ";
+    $sth = executeQuery2($query);
+    $sth->bindParam(":identification_no", $args['identification_id']);
     $sth->execute();
     $person = $sth->fetchObject();
     return $this->response->withJson($person);
@@ -147,7 +153,7 @@ $app->get('/person/check/[{card_no}]', function ($request, $response, $args) {
             (SELECT sum(jumlah_guna) FROM point_consume WHERE person_id = p.person_id) as consume
             FROM person p where p.card_no = :card_no ";
 
-    $sth = $this->db->prepare($query);
+    $sth = executeQuery2($query);
     $sth->bindParam(":card_no", $args['card_no']);
     $sth->execute();
     $person = $sth->fetchObject();
@@ -168,7 +174,7 @@ $app->get('/person/check-2/[{params:.*}]', function ($request, $response) {
             (SELECT sum(jumlah_guna) FROM point_consume WHERE person_id = p.person_id) as consume
             FROM person p where p.card_no = :card_no AND domain_daftar IN ($linkedDomain)";
 
-    $sth = $this->db->prepare($query);
+    $sth = executeQuery2($query);
     $sth->bindParam(":card_no", $params[1]);
     $sth->execute();
     $person = $sth->fetchObject();
@@ -234,7 +240,7 @@ default:
 $app->put('/person/deactive', function ($request, $response, $args) {
     $input = $request->getParsedBody();
     $sql = "UPDATE person SET status=1 WHERE person_id = :person_id AND domain_daftar = :domain";
-    $sth = $this->db->prepare($sql);
+    $sth = executeQuery2($sql);
     $sth->bindParam(':person_id', $input['person_id']);
     $sth->bindParam(':domain', $input['domain']);
     $sth->execute();
