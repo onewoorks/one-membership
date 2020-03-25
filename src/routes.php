@@ -8,6 +8,7 @@ define("DBUSER", 'root');
 define("DBPASSWORD", 're^mp123');
 
 include_once 'Class/dirty_functions.php';
+include_once 'Class/SmsGateway.php';
 
 include_once 'paths/persons.php';
 include_once 'paths/point_collection.php';

@@ -6,8 +6,10 @@ $app->get('/setup/[{domain}]', function($request, $response, $args) {
     $sth->bindParam(":domain",$args['domain']);
     $sth->execute();
     $config = $sth->fetchObject();
-    $config->config = json_decode($config->config);
-    return $this->response->withJson($config->config);
+    if($config){
+        $config->config = json_decode($config->config);
+        return $this->response->withJson($config);
+    }
 });
 
 $app->get('/linkeddomain/[{domain}]', function($request, $response, $args) {
@@ -21,7 +23,8 @@ $app->get('/domain-daftar/[{domain}]', function($request, $response, $args){
     . "(SELECT sum(jumlah_mata) FROM point_collection WHERE person_id=p.person_id) as kumpul, "
     . "(SELECT COALESCE(sum(jumlah_guna),0) FROM point_consume WHERE person_id=p.person_id) as guna "
     . "FROM person p "
-    . "WHERE p.domain_daftar='$domain' GROUP BY p.identification_no ";
+    . "WHERE p.domain_daftar='$domain' GROUP BY p.identification_no "
+    . "ORDER BY person_id DESC";
     return $this->response->withJson(executeQuery($sql));
 });
 

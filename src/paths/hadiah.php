@@ -1,18 +1,16 @@
 <?php
 
-$app->get('/hadiah/list/[{domain}]', function($request, $response, $args) {
-    $linkedDomain = getLinkedDomain($args['domain']);
-    $sql = "SELECT * FROM ganjaran WHERE domain IN ($linkedDomain)";
-    $sth = $this->db->prepare($sql);
+$app->get('/hadiah/list', function($request, $response, $args) {
+    $sql = "SELECT *, id as 'key' FROM ganjaran ";
+    $sth = executeQuery2($sql);
     $sth->execute();
-    $hadiah = $sth->fetchAll();
+    $hadiah = $sth->fetchAll(PDO::FETCH_ASSOC);
     return $this->response->withJson($hadiah);
 });
 
 $app->get('/hadiah-tunai/list/[{domain}]', function($request, $response, $args) {
-    $linkedDomain = getLinkedDomain($args['domain']);
-    $sql = "SELECT * FROM ganjaran WHERE domain IN ($linkedDomain) AND jenis_hadiah='tunai'";
-    $sth = $this->db->prepare($sql);
+    $sql = "SELECT * FROM ganjaran WHERE jenis_hadiah='kupon'";
+    $sth = executeQuery2($sql);
     $sth->execute();
     $hadiah = $sth->fetchAll();
     return $this->response->withJson($hadiah);

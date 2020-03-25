@@ -15,6 +15,8 @@ if (PHP_SAPI == 'cli-server') {
 
 require __DIR__ . '/../vendor/autoload.php';
 
+DEFINE('INTEGRATION_GATEWAY','http://localhost:3333');
+
 session_start();
 
 // Instantiate the app
