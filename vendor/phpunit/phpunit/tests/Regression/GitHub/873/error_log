@@ -1,0 +1,24 @@
+[10-Jun-2019 00:19:04 UTC] PHP Fatal error:  Uncaught exception 'Exception' with message 'PHPUnit suppresses exceptions thrown outside of test case function' in /home/onewoork/public_html/membership/vendor/phpunit/phpunit/tests/Regression/GitHub/873/Issue873Test.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/onewoork/public_html/membership/vendor/phpunit/phpunit/tests/Regression/GitHub/873/Issue873Test.php on line 7
+[15-Jun-2019 09:14:34 UTC] PHP Fatal error:  Uncaught exception 'Exception' with message 'PHPUnit suppresses exceptions thrown outside of test case function' in /home/onewoork/public_html/membership/vendor/phpunit/phpunit/tests/Regression/GitHub/873/Issue873Test.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/onewoork/public_html/membership/vendor/phpunit/phpunit/tests/Regression/GitHub/873/Issue873Test.php on line 7
+[16-Jun-2019 21:26:59 UTC] PHP Fatal error:  Uncaught exception 'Exception' with message 'PHPUnit suppresses exceptions thrown outside of test case function' in /home/onewoork/public_html/membership/vendor/phpunit/phpunit/tests/Regression/GitHub/873/Issue873Test.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/onewoork/public_html/membership/vendor/phpunit/phpunit/tests/Regression/GitHub/873/Issue873Test.php on line 7
+[22-Jun-2019 05:04:08 UTC] PHP Fatal error:  Uncaught exception 'Exception' with message 'PHPUnit suppresses exceptions thrown outside of test case function' in /home/onewoork/public_html/membership/vendor/phpunit/phpunit/tests/Regression/GitHub/873/Issue873Test.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/onewoork/public_html/membership/vendor/phpunit/phpunit/tests/Regression/GitHub/873/Issue873Test.php on line 7
+[22-Jun-2019 17:04:14 UTC] PHP Fatal error:  Uncaught exception 'Exception' with message 'PHPUnit suppresses exceptions thrown outside of test case function' in /home/onewoork/public_html/membership/vendor/phpunit/phpunit/tests/Regression/GitHub/873/Issue873Test.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/onewoork/public_html/membership/vendor/phpunit/phpunit/tests/Regression/GitHub/873/Issue873Test.php on line 7
+[29-Jun-2019 03:28:03 UTC] PHP Fatal error:  Uncaught exception 'Exception' with message 'PHPUnit suppresses exceptions thrown outside of test case function' in /home/onewoork/public_html/membership/vendor/phpunit/phpunit/tests/Regression/GitHub/873/Issue873Test.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/onewoork/public_html/membership/vendor/phpunit/phpunit/tests/Regression/GitHub/873/Issue873Test.php on line 7

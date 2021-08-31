@@ -1,0 +1,12 @@
+[05-Jun-2019 02:41:12 UTC] PHP Fatal error:  Class 'PhpSpec\ObjectBehavior' not found in /home/onewoork/public_html/membership/vendor/phpspec/prophecy/spec/Prophecy/Util/StringUtilSpec.php on line 8
+[05-Jun-2019 05:06:16 UTC] PHP Fatal error:  Class 'PhpSpec\ObjectBehavior' not found in /home/onewoork/public_html/membership/vendor/phpspec/prophecy/spec/Prophecy/Util/StringUtilSpec.php on line 8
+[11-Jun-2019 11:09:52 UTC] PHP Fatal error:  Class 'PhpSpec\ObjectBehavior' not found in /home/onewoork/public_html/membership/vendor/phpspec/prophecy/spec/Prophecy/Util/StringUtilSpec.php on line 8
+[11-Jun-2019 19:37:00 UTC] PHP Fatal error:  Class 'PhpSpec\ObjectBehavior' not found in /home/onewoork/public_html/membership/vendor/phpspec/prophecy/spec/Prophecy/Util/StringUtilSpec.php on line 8
+[15-Jun-2019 19:23:56 UTC] PHP Fatal error:  Class 'PhpSpec\ObjectBehavior' not found in /home/onewoork/public_html/membership/vendor/phpspec/prophecy/spec/Prophecy/Util/StringUtilSpec.php on line 8
+[15-Jun-2019 19:34:03 UTC] PHP Fatal error:  Class 'PhpSpec\ObjectBehavior' not found in /home/onewoork/public_html/membership/vendor/phpspec/prophecy/spec/Prophecy/Util/StringUtilSpec.php on line 8
+[17-Jun-2019 16:21:48 UTC] PHP Fatal error:  Class 'PhpSpec\ObjectBehavior' not found in /home/onewoork/public_html/membership/vendor/phpspec/prophecy/spec/Prophecy/Util/StringUtilSpec.php on line 8
+[18-Jun-2019 01:29:39 UTC] PHP Fatal error:  Class 'PhpSpec\ObjectBehavior' not found in /home/onewoork/public_html/membership/vendor/phpspec/prophecy/spec/Prophecy/Util/StringUtilSpec.php on line 8
+[21-Jun-2019 10:53:40 UTC] PHP Fatal error:  Class 'PhpSpec\ObjectBehavior' not found in /home/onewoork/public_html/membership/vendor/phpspec/prophecy/spec/Prophecy/Util/StringUtilSpec.php on line 8
+[22-Jun-2019 00:42:56 UTC] PHP Fatal error:  Class 'PhpSpec\ObjectBehavior' not found in /home/onewoork/public_html/membership/vendor/phpspec/prophecy/spec/Prophecy/Util/StringUtilSpec.php on line 8
+[27-Jun-2019 13:59:54 UTC] PHP Fatal error:  Class 'PhpSpec\ObjectBehavior' not found in /home/onewoork/public_html/membership/vendor/phpspec/prophecy/spec/Prophecy/Util/StringUtilSpec.php on line 8
+[28-Jun-2019 00:16:08 UTC] PHP Fatal error:  Class 'PhpSpec\ObjectBehavior' not found in /home/onewoork/public_html/membership/vendor/phpspec/prophecy/spec/Prophecy/Util/StringUtilSpec.php on line 8

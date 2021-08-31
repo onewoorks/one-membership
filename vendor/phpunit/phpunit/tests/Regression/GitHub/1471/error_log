@@ -1,0 +1,6 @@
+[10-Jun-2019 19:17:08 UTC] PHP Fatal error:  Class 'PHPUnit_Framework_TestCase' not found in /home/onewoork/public_html/membership/vendor/phpunit/phpunit/tests/Regression/GitHub/1471/Issue1471Test.php on line 3
+[15-Jun-2019 13:36:08 UTC] PHP Fatal error:  Class 'PHPUnit_Framework_TestCase' not found in /home/onewoork/public_html/membership/vendor/phpunit/phpunit/tests/Regression/GitHub/1471/Issue1471Test.php on line 3
+[16-Jun-2019 13:57:02 UTC] PHP Fatal error:  Class 'PHPUnit_Framework_TestCase' not found in /home/onewoork/public_html/membership/vendor/phpunit/phpunit/tests/Regression/GitHub/1471/Issue1471Test.php on line 3
+[21-Jun-2019 20:16:51 UTC] PHP Fatal error:  Class 'PHPUnit_Framework_TestCase' not found in /home/onewoork/public_html/membership/vendor/phpunit/phpunit/tests/Regression/GitHub/1471/Issue1471Test.php on line 3
+[22-Jun-2019 06:38:38 UTC] PHP Fatal error:  Class 'PHPUnit_Framework_TestCase' not found in /home/onewoork/public_html/membership/vendor/phpunit/phpunit/tests/Regression/GitHub/1471/Issue1471Test.php on line 3
+[28-Jun-2019 00:37:10 UTC] PHP Fatal error:  Class 'PHPUnit_Framework_TestCase' not found in /home/onewoork/public_html/membership/vendor/phpunit/phpunit/tests/Regression/GitHub/1471/Issue1471Test.php on line 3
