@@ -44,14 +44,16 @@ WHERE pe.domain_daftar IN ($linkedDomain) AND pe.status = 0 ";
     else :
         $sql .= "GROUP BY pe.card_no";
     endif;
+    $sql .= " ORDER BY pe.person_id DESC";
     $sth = $this->db->prepare($sql);
     $sth->execute();
     $personPoints = $sth->fetchAll();
     return $this->response->withJson($personPoints);
 });
 
-$app->get('/person/[{id}]', function ($request, $response, $args) {
-    $sth = $this->db->prepare("SELECT * FROM person WHERE person_id=:id");
+$app->get('/person/{id}/{domain}', function ($request, $response, $args) {
+    $linkedDomain = getLinkedDomain($args['domain']);
+    $sth = $this->db->prepare("SELECT * FROM person WHERE person_id=:id and domain_daftar IN ($linkedDomain)");
     $sth->bindParam("id", $args['id']);
     $sth->execute();
     $todos = $sth->fetchObject();
@@ -147,7 +149,8 @@ $app->get('/person/point-log-card-no/[{params:.*}]', function($request, $respons
             ORDER BY p.tarikh DESC";
             $sth = $this->db->prepare($sql);
             $sth->bindParam("person_id", $params[1]);
-            $sth->bindParam("tarikh", isset($params[2]) ? $params[2] : date('Y-m-d'));
+            $date_now = isset($params[2]) ? $params[2] : date('Y-m-d');
+            $sth->bindParam("tarikh", $date_now);
             $sth->execute();
             $pointlog = $sth->fetchAll();
             return $this->response->withJson($pointlog);
