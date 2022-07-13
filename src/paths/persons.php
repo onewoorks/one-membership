@@ -1,5 +1,7 @@
 <?php
 
+
+
 $app->get('/persons', function ($request, $response, $args) {
     $sth = $this->db->prepare("SELECT * FROM person ORDER BY person_id");
     $sth->execute();
