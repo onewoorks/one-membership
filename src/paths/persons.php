@@ -166,8 +166,14 @@ $app->get('/person/check/[{card_no}]', function ($request, $response, $args) {
 });
 
 $app->get('/person/check-2/[{params:.*}]', function ($request, $response) {
-    $params = explode('/', $request->getAttribute('params'));
+	$params = explode('/', $request->getAttribute('params'));
+//	print_r($params);
+//	die();
     $linkedDomain = getLinkedDomain($params[0]);
+    //print_r($linkedDomain);
+   // die();
+   // $personLink = linkedDomain($params[1], $linkedDomain);
+   // print_r($personLink);
     $query = "SELECT
             p.*,
             (SELECT sum(jumlah_mata) FROM point_collection WHERE person_id = p.person_id) AS collected,
